@@ -47,10 +47,11 @@ def handle_client_request(resource, client_socket):
             http_header += "Content-Type: text/javascript; charset=UTF-8\r\n"
         elif filetype == 'css':
             http_header += "Content-Type: text/css\r\n"
-        http_header += '\r\n'
         filename = url[url.rfind('\\') + 1:]
-        # TO DO: read the data from the file
         data = get_file_data(filename)
+        http_header += "Content-Length: {}\r\n".format(len(data))
+        http_header += '\r\n'
+        # TO DO: read the data from the file
         http_response = http_header.encode() + data
     client_socket.send(http_response)
 
