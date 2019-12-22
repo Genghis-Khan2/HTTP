@@ -14,6 +14,7 @@ PORT = 8080
 SOCKET_TIMEOUT = 1000
 DEFAULT_URL = r'E:\Rambam\Exercises (Networks)\webroot'
 REDIRECTION_DICTIONARY = {}
+FORBIDDEN = ()
 
 def get_file_data(filename):
     """ Get data from file """
@@ -29,11 +30,14 @@ def handle_client_request(resource, client_socket):
         url = resource
 
     # TO DO: check if URL had been redirected, not available or other error code. For example:
+    http_header = ""
+    data = b''
     if url in REDIRECTION_DICTIONARY:
         # TO DO: send 302 redirection response
-        http_response = "HTTP/1.1 303 See Other\r\n"
-        http_response += REDIRECTION_DICTIONARY[url]
-
+        http_header = "HTTP/1.1 303 See Other\r\n"
+        http_header += "Location: " + REDIRECTION_DICTIONARY[url] + '\r\n'
+    elif url in FORBIDDEN:
+        http_header = "HTTP/1.1 403 Forbidden\r\n"
     else:
         http_header = "HTTP/1.1 200 OK\r\n"
     # TO DO: extract requested file type from URL (html, jpg etc)
@@ -50,9 +54,9 @@ def handle_client_request(resource, client_socket):
         filename = url[url.rfind('\\') + 1:]
         data = get_file_data(filename)
         http_header += "Content-Length: {}\r\n".format(len(data))
-        http_header += '\r\n'
-        # TO DO: read the data from the file
-        http_response = http_header.encode() + data
+    http_header += '\r\n'
+    # TO DO: read the data from the file
+    http_response = http_header.encode() + data
     client_socket.send(http_response)
 
 
