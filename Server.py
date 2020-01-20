@@ -27,10 +27,16 @@ def handle_client_request(resource, client_socket):
     if resource == '':
         url = DEFAULT_URL + '\\index.html'
     elif resource.startswith('calculate-next'):
-        url = resource
-        pos = resource.find('=') + 1
-        number = resource[pos:]
+        number = resource[resource.find('=') + 1:]
         number = str(int(number) + 1)
+        http_header = "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: text/plain\r\n\r\n".format(len(number))
+        http_response = http_header.encode() + number.encode()
+        client_socket.send(http_response)
+        return
+    elif resource.startswith('calculate-area'):
+        height = int(resource[resource.find('height=') + 7:resource.find('&')])
+        width = int(resource[resource.find('width=') + 6:])
+        number = str(int(height * width / 2))
         http_header = "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: text/plain\r\n\r\n".format(len(number))
         http_response = http_header.encode() + number.encode()
         client_socket.send(http_response)
@@ -38,7 +44,6 @@ def handle_client_request(resource, client_socket):
 
     else:
         url = resource
-
     # TO DO: check if URL had been redirected, not available or other error code. For example:
     http_header = ""
     data = b''
