@@ -26,6 +26,16 @@ def handle_client_request(resource, client_socket):
     # TO DO : add code that given a resource (URL and parameters) generates the proper response
     if resource == '':
         url = DEFAULT_URL + '\\index.html'
+    elif resource.startswith('calculate-next'):
+        url = resource
+        pos = resource.find('=') + 1
+        number = resource[pos:]
+        number = str(int(number) + 1)
+        http_header = "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: text/plain\r\n\r\n".format(len(number))
+        http_response = http_header.encode() + number.encode()
+        client_socket.send(http_response)
+        return
+
     else:
         url = resource
 
